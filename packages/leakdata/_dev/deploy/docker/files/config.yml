@@ -3,10 +3,12 @@ rules:
     methods: [GET]
     query_params:
       limit: ["1"]
-      cursor: [""]
+      # Gorilla Mux treats an empty query pattern as a wildcard. Match only
+      # the initial empty cursor so later pages reach their own routes.
+      cursor: ["{cursor:$}"]
     request_headers:
-      Authorization: ["Bearer synthetic-system-test-token-not-a-credential"]
-      Accept: ["application/json"]
+      Authorization: ["^Bearer synthetic-system-test-token-not-a-credential$"]
+      Accept: ["^application/json$"]
     responses:
       - status_code: 200
         headers:
@@ -74,8 +76,8 @@ rules:
       limit: ["1"]
       cursor: ["000000000000000000000001"]
     request_headers:
-      Authorization: ["Bearer synthetic-system-test-token-not-a-credential"]
-      Accept: ["application/json"]
+      Authorization: ["^Bearer synthetic-system-test-token-not-a-credential$"]
+      Accept: ["^application/json$"]
     responses:
       - status_code: 200
         headers:
@@ -143,8 +145,8 @@ rules:
       limit: ["1"]
       cursor: ["000000000000000000000002"]
     request_headers:
-      Authorization: ["Bearer synthetic-system-test-token-not-a-credential"]
-      Accept: ["application/json"]
+      Authorization: ["^Bearer synthetic-system-test-token-not-a-credential$"]
+      Accept: ["^application/json$"]
     responses:
       - status_code: 200
         headers:
