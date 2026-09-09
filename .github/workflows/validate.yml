@@ -1,0 +1,50 @@
+name: Validate Elastic package
+
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: elastic-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: packages/leakdata
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Install verified elastic-package binary
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/elastic/elastic-package/releases/download/v0.126.4/elastic-package_0.126.4_linux_amd64.tar.gz \
+            --output elastic-package.tar.gz
+          echo '2d069374dfdd4eb1e32cc2876a26bfbd8aa98fcec58fe904ce26bccfa7ca96b3  elastic-package.tar.gz' | sha256sum --check
+          tar -xzf elastic-package.tar.gz elastic-package
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Check and build package
+        run: elastic-package check
+      - name: Validate sample event
+        run: elastic-package test static
+      - name: Start isolated test stack
+        id: stack
+        run: elastic-package stack up -d --version 9.3.1 --services elasticsearch,kibana
+      - name: Test ingest pipeline
+        run: elastic-package test pipeline
+      - name: Generate synthetic policy baseline for review
+        if: ${{ !cancelled() && steps.stack.outcome == 'success' }}
+        run: |
+          elastic-package test policy --generate
+          cat data_stream/exposure/_dev/test/policy/test-default.expected
+      - name: Stop isolated test stack
+        if: always()
+        run: elastic-package stack down
