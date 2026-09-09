@@ -2,7 +2,7 @@ name: Validate Elastic package
 
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -36,15 +36,13 @@ jobs:
       - name: Validate sample event
         run: elastic-package test static
       - name: Start isolated test stack
-        id: stack
-        run: elastic-package stack up -d --version 9.3.1 --services elasticsearch,kibana
+        run: elastic-package stack up -d --version 9.3.1
       - name: Test ingest pipeline
         run: elastic-package test pipeline
-      - name: Generate synthetic policy baseline for review
-        if: ${{ !cancelled() && steps.stack.outcome == 'success' }}
-        run: |
-          elastic-package test policy --generate
-          cat data_stream/exposure/_dev/test/policy/test-default.expected
+      - name: Test rendered Fleet policy
+        run: elastic-package test policy
+      - name: Test bearer authentication and pagination through Elastic Agent
+        run: elastic-package test system
       - name: Stop isolated test stack
         if: always()
         run: elastic-package stack down

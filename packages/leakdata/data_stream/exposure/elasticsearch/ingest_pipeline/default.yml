@@ -4,27 +4,35 @@ processors:
   - rename:
       field: json.@timestamp
       target_field: '@timestamp'
+      override: true
   - rename:
       field: json.ecs
       target_field: ecs
+      override: true
   - rename:
       field: json.event
       target_field: event
+      override: true
   - rename:
       field: json.message
       target_field: message
+      override: true
   - rename:
       field: json.observer
       target_field: observer
+      override: true
   - rename:
       field: json.rule
       target_field: rule
-  - rename:
-      field: json.tags
-      target_field: tags
+      override: true
+  - append:
+      field: tags
+      copy_from: json.tags
+      allow_duplicates: false
   - rename:
       field: json.leakdata
       target_field: leakdata
+      override: true
   - remove:
       field: json
       ignore_missing: true
