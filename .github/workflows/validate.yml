@@ -39,6 +39,8 @@ jobs:
         run: elastic-package stack up -d --version 9.3.1
       - name: Test ingest pipeline
         run: elastic-package test pipeline
+      - name: Verify original feed errors remain intact
+        run: elastic-package test script
       - name: Test rendered Fleet policy
         run: elastic-package test policy
       - name: Test installed package assets

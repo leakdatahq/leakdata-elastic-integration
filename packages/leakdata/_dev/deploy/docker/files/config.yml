@@ -65,14 +65,14 @@ rules:
                 }
               }
             ],
-            "next_cursor": "synthetic-page-2",
+            "next_cursor": "000000000000000000000001",
             "has_more": true
           }
   - path: /api/integrations/elastic-security/v1/events
     methods: [GET]
     query_params:
       limit: ["1"]
-      cursor: ["synthetic-page-2"]
+      cursor: ["000000000000000000000001"]
     request_headers:
       Authorization: ["Bearer synthetic-system-test-token-not-a-credential"]
       Accept: ["application/json"]
@@ -134,14 +134,14 @@ rules:
                 }
               }
             ],
-            "next_cursor": "synthetic-complete",
+            "next_cursor": "000000000000000000000002",
             "has_more": false
           }
   - path: /api/integrations/elastic-security/v1/events
     methods: [GET]
     query_params:
       limit: ["1"]
-      cursor: ["synthetic-complete"]
+      cursor: ["000000000000000000000002"]
     request_headers:
       Authorization: ["Bearer synthetic-system-test-token-not-a-credential"]
       Accept: ["application/json"]
@@ -152,6 +152,6 @@ rules:
         body: |-
           {
             "events": [],
-            "next_cursor": "synthetic-complete",
+            "next_cursor": "000000000000000000000002",
             "has_more": false
           }

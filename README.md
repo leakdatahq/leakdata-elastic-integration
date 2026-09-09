@@ -31,6 +31,7 @@ elastic-package check
 elastic-package test static
 elastic-package stack up -d --version 9.3.1
 elastic-package test pipeline
+elastic-package test script
 elastic-package test policy
 elastic-package test system
 elastic-package stack down
