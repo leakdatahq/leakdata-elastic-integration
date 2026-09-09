@@ -1,0 +1,70 @@
+name: Validate Elastic package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: elastic-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: Elastic ${{ matrix.stack }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        stack: ['9.3.1', '9.5.3']
+    defaults:
+      run:
+        working-directory: packages/leakdata
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Install verified elastic-package binary
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/elastic/elastic-package/releases/download/v0.126.4/elastic-package_0.126.4_linux_amd64.tar.gz \
+            --output elastic-package.tar.gz
+          echo '2d069374dfdd4eb1e32cc2876a26bfbd8aa98fcec58fe904ce26bccfa7ca96b3  elastic-package.tar.gz' | sha256sum --check
+          tar -xzf elastic-package.tar.gz elastic-package
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Check and build package
+        run: elastic-package check
+      - name: Validate sample event
+        run: elastic-package test static
+      - name: Start isolated test stack
+        run: elastic-package stack up -d --version '${{ matrix.stack }}'
+      - name: Test ingest pipeline
+        run: elastic-package test pipeline
+      - name: Verify original feed errors remain intact
+        run: elastic-package test script
+      - name: Test rendered Fleet policy
+        run: elastic-package test policy
+      - name: Test installed package assets
+        run: elastic-package test asset
+      - name: Test bearer authentication and pagination through Elastic Agent
+        run: elastic-package test system --generate
+      - name: Validate the generated sample and build release candidate
+        run: |
+          elastic-package build
+          elastic-package test static
+      - name: Save tested package and synthetic sample
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: leakdata-elastic-tested-package-${{ matrix.stack }}
+          path: |
+            build/packages/leakdata-0.1.0.zip
+            packages/leakdata/data_stream/exposure/sample_event.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Stop isolated test stack
+        if: always()
+        run: elastic-package stack down

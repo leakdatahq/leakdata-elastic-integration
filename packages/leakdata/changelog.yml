@@ -3,4 +3,4 @@
   changes:
     - description: Initial candidate package for privacy-minimized verified exposure alerts.
       type: enhancement
-      link: https://github.com/uzmanwebmaster/leakdata/pull/25
+      link: https://github.com/elastic/integrations/pull/21156

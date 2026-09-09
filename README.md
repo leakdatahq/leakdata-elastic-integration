@@ -29,11 +29,22 @@ Validation uses the official `elastic-package` tool. From the package directory:
 ```sh
 elastic-package check
 elastic-package test static
+elastic-package stack up -d --version 9.3.1
+elastic-package test pipeline
+elastic-package test script
+elastic-package test policy
+elastic-package test asset
+elastic-package test system
+elastic-package stack down
 ```
 
 Pipeline and system validation require an isolated Elastic Stack. Synthetic fixtures are used for package testing; production customer records and connector credentials must never be committed.
 
+The pipeline fixtures cover the timestamp, ECS version and tags that Elastic Agent attaches before ingestion. The system fixture serves two pages of synthetic alerts and then an empty page, checking the bearer header and cursor on each request. The expected result is exactly two indexed events. These tests exercise the package and its client behavior; they do not connect to a live LeakData account.
+
 See the [package guide](packages/leakdata/docs/README.md) for the event schema and setup details. A successful package test does not establish Elastic review or catalog publication.
+
+Validated with Elastic 9.3.1 and 9.5.3: [complete test evidence](https://github.com/leakdatahq/leakdata-elastic-integration/actions/runs/34377828952). [Elastic catalog submission](https://github.com/elastic/integrations/pull/21156) is open for review.
 
 ## Help
 
