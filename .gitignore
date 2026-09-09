@@ -1,0 +1,6 @@
+/build/
+/data/
+/coverage/
+/.elastic-package/
+*.test-report.xml
+*.test-report.json

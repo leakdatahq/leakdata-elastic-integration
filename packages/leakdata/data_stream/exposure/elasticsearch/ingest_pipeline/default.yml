@@ -1,0 +1,43 @@
+---
+description: Normalize the allowlisted LeakData ECS alert document.
+processors:
+  - rename:
+      field: json.@timestamp
+      target_field: '@timestamp'
+  - rename:
+      field: json.ecs
+      target_field: ecs
+  - rename:
+      field: json.event
+      target_field: event
+  - rename:
+      field: json.message
+      target_field: message
+  - rename:
+      field: json.observer
+      target_field: observer
+  - rename:
+      field: json.rule
+      target_field: rule
+  - rename:
+      field: json.tags
+      target_field: tags
+  - rename:
+      field: json.leakdata
+      target_field: leakdata
+  - remove:
+      field: json
+      ignore_missing: true
+  - set:
+      field: event.module
+      value: leakdata
+  - set:
+      field: event.dataset
+      value: leakdata.exposure
+  - set:
+      field: event.ingested
+      value: '{{{_ingest.timestamp}}}'
+on_failure:
+  - set:
+      field: error.message
+      value: '{{{_ingest.on_failure_message}}}'
