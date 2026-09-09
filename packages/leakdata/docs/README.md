@@ -1,6 +1,16 @@
 # LeakData Exposure Monitoring integration
 
-The LeakData integration collects privacy-minimized verified exposure alerts with Elastic Agent and maps them to Elastic Common Schema (ECS).
+Bring verified breach-exposure alerts into Elastic Security without copying the underlying personal data into your SIEM. Elastic Agent collects alerts from LeakData and maps them to Elastic Common Schema (ECS).
+
+Each alert provides a severity, a finding count, an event ID and timestamps. Use these signals to prioritize an investigation in LeakData alongside your other security telemetry. An exposure alert does not establish that an account has been compromised.
+
+## Requirements
+
+- Elastic Stack 9.3.1 or later within the supported 9.x range, with Fleet and Elastic Agent.
+- An active LeakData account with SIEM integration access.
+- A personal-email monitor with confirmed ownership and monitoring enabled.
+
+Your LeakData plan and Elastic deployment requirements apply separately. [Explore LeakData](https://leakdata.io/integrations/elastic-security) or [view plans](https://leakdata.io/pricing).
 
 ## Data and verification boundary
 
@@ -10,10 +20,13 @@ The feed does not include an email address, monitor identifier, breach/source na
 
 ## Setup
 
-1. Create the Elastic Security connector in the LeakData dashboard.
-2. Copy the one-time token. LeakData stores only its SHA-256 digest.
-3. Add the package in Fleet, keep `https://leakdata.io`, and store the token in the secret field.
-4. Confirm documents are arriving in `logs-leakdata.exposure-*`.
+1. In the LeakData dashboard, create an Elastic Security connector and choose the exposure threshold you want to monitor.
+2. Copy the connector token when it is shown. You will use it to connect Elastic Agent.
+3. Add this integration to a Fleet agent policy. Keep the default LeakData URL and paste the token into **Connector token**. Fleet stores this setting as a secret.
+4. Leave the poll interval at five minutes, or adjust it to suit your workflow. Keep the `forwarded` tag; you can add your own tags.
+5. After LeakData detects a new eligible exposure, use Discover to check `logs-leakdata.exposure-*` for the alert.
+
+An empty feed can be expected when there are no new eligible alerts. Check that the monitor is active, its email ownership remains verified and your account still has SIEM integration access before investigating the connection.
 
 ## Logs reference
 
@@ -90,6 +103,7 @@ An example event for `exposure` looks as following:
 | data_stream.type | An overarching type for the data stream. Currently allowed values are "logs" and "metrics". We expect to also add "traces" and "synthetics" in the near future. | constant_keyword |
 | event.dataset | Name of the dataset. If an event source publishes more than one type of log or events (e.g. access log, error log), the dataset is used to specify which one the event comes from. It's recommended but not required to start the dataset name with the module name, followed by a dot, then the dataset name. | constant_keyword |
 | event.module | Name of the module this data is coming from. If your monitoring agent supports the concept of modules or plugins to process events of a given source (e.g. Apache logs), `event.module` should contain the name of this module. | constant_keyword |
+| input.type | Type of Elastic Agent input that collected the event. | keyword |
 | leakdata.exposure.contains_personal_data | Always false for this privacy-minimized feed. | boolean |
 | leakdata.exposure.evidence_scope | Verification boundary used before the alert was released. | keyword |
 | leakdata.exposure.finding_count | Number of newly verified sources represented by this alert. | long |
@@ -98,3 +112,5 @@ An example event for `exposure` looks as following:
 
 
 Version `0.1.0` is a submission candidate and is not represented as Elastic-reviewed or published.
+
+For setup and account questions, contact [support@leakdata.io](mailto:support@leakdata.io). Report security issues privately to [security@leakdata.io](mailto:security@leakdata.io).

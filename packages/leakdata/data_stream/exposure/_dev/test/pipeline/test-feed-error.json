@@ -1,0 +1,19 @@
+{
+  "events": [
+    {
+      "@timestamp": "2026-08-14T10:05:00.000Z",
+      "ecs": {
+        "version": "8.0.0"
+      },
+      "error": {
+        "code": "403",
+        "id": "403 Forbidden",
+        "message": "GET LeakData feed: connector access is unavailable"
+      },
+      "tags": [
+        "forwarded",
+        "leakdata"
+      ]
+    }
+  ]
+}

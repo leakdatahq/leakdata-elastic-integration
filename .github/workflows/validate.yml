@@ -41,8 +41,23 @@ jobs:
         run: elastic-package test pipeline
       - name: Test rendered Fleet policy
         run: elastic-package test policy
+      - name: Test installed package assets
+        run: elastic-package test asset
       - name: Test bearer authentication and pagination through Elastic Agent
-        run: elastic-package test system
+        run: elastic-package test system --generate
+      - name: Validate the generated sample and build release candidate
+        run: |
+          elastic-package build
+          elastic-package test static
+      - name: Save tested package and synthetic sample
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: leakdata-elastic-tested-package
+          path: |
+            build/packages/leakdata-0.1.0.zip
+            packages/leakdata/data_stream/exposure/sample_event.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Stop isolated test stack
         if: always()
         run: elastic-package stack down
