@@ -44,7 +44,9 @@ The pipeline fixtures cover the timestamp, ECS version and tags that Elastic Age
 
 See the [package guide](packages/leakdata/docs/README.md) for the event schema and setup details. A successful package test does not establish Elastic review or catalog publication.
 
-Validated with Elastic 9.3.1 and 9.5.3: [complete test evidence](https://github.com/leakdatahq/leakdata-elastic-integration/actions/runs/34377828952). [Elastic catalog submission](https://github.com/elastic/integrations/pull/21156) is open for review.
+The revised package at [upstream commit `60c298584`](https://github.com/elastic/integrations/pull/21156/commits/60c298584d13cb73c55a9870d0cbb8dc2a449644) passed fresh native checks on isolated Elastic 9.3.1 and 9.5.3 stacks on October 8, 2026: static, pipeline and warning checks, CEL scripts, Fleet policy, installed assets and authenticated two-page Agent ingestion. Existing expected outputs were used without regeneration. The 31 package source files have aggregate SHA-256 `cf253a22d320a833236b07b85c8ba28f4b4ce15bd9adc592cadec27636eddb06`.
+
+The workflow validates both stack versions and compares existing test results; it does not regenerate a passing sample. HTTP errors retain their status through a fixed message without copying response bodies, and original-event preservation occurs only after schema and leaf validation. The [September CI record](https://github.com/leakdatahq/leakdata-elastic-integration/actions/runs/34377828952) covers the earlier revision. [Elastic catalog submission](https://github.com/elastic/integrations/pull/21156) remains open for maintainer CI and review.
 
 ## Help
 

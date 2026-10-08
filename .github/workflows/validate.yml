@@ -22,6 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         stack: ['9.3.1', '9.5.3']
+    env:
+      COMPOSE_PROGRESS: plain
+      COMPOSE_ANSI: never
+      BUILDKIT_PROGRESS: plain
     defaults:
       run:
         working-directory: packages/leakdata
@@ -37,22 +41,24 @@ jobs:
           tar -xzf elastic-package.tar.gz elastic-package
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
       - name: Check and build package
-        run: elastic-package check
+        run: |
+          elastic-package format --fail-fast
+          elastic-package check
       - name: Validate sample event
         run: elastic-package test static
       - name: Start isolated test stack
         run: elastic-package stack up -d --version '${{ matrix.stack }}'
       - name: Test ingest pipeline
         run: elastic-package test pipeline
-      - name: Verify original feed errors remain intact
+      - name: Test safe HTTP failures and rejected feed payloads
         run: elastic-package test script
       - name: Test rendered Fleet policy
         run: elastic-package test policy
       - name: Test installed package assets
         run: elastic-package test asset
       - name: Test bearer authentication and pagination through Elastic Agent
-        run: elastic-package test system --generate
-      - name: Validate the generated sample and build release candidate
+        run: elastic-package test system
+      - name: Validate the existing sample and build release candidate
         run: |
           elastic-package build
           elastic-package test static
